@@ -12,12 +12,14 @@ close F;
 
 open F,">$ARGV[0].csv";
 print F "name\td (m)\tv1\tv2\tangle1 (deg)\tangle2 (deg)\ttrackpoints\n";
+$arcnumber = 0;
 while ($f =~ s/<Placemark>(.*?)<\/Placemark>//s) {
     $a = $1;
-    $a =~ m/<name>(.*?)\n?<\/name>/s;
-#    print "$1\n";
-    $name = $1;
-    ($arch = $name) =~ s/^(\d+)\D.*/$1/gs;
+    $a =~  m/(?:<name\/>|<name>(.*?)\n?<\/name>)/s;
+    #print "$1\n";
+    #$name = $1;
+    #($arch = $name) =~ s/^(\d+)\D.*/$1/gs;
+    $arcnumber = $arcnumber + 1;
     $a =~ m/<coordinates>(.*?)<\/coordinates>/s;
     $c = $1;
     $c =~ s/^\s+//sg;
@@ -42,7 +44,7 @@ while ($f =~ s/<Placemark>(.*?)<\/Placemark>//s) {
     $angle2 = round($angle2);
     while (length($n{$c[0]})<3) {$n{$c[0]} = "0" . $n{$c[0]} };
     while (length($n{$c[$#c]})<3) {$n{$c[$#c]} = "0" . $n{$c[$#c]} };
-    print F "a$arch\t$d\tv$n{$c[0]}\tv$n{$c[$#c]}\t$angle1\t$angle2\t$c\n";
+    print F "a$arcnumber\t$d\tv$n{$c[0]}\tv$n{$c[$#c]}\t$angle1\t$angle2\t$c\n";
 
     $v{$n{$c[0]}}{p} = $c[0];
     $v{$n{$c[0]}}{a}{"a$arch"} = 1;
