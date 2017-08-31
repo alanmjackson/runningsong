@@ -2,6 +2,10 @@
 # bjohas.de, March 2017
 # Convert kml into csv, containing arches for Alan's runs.
 
+    
+use XML::LibXML;
+use XML::LibXML::XPathContext;
+
 if ($ARGV[0] eq "") {
     die("Provide kml file as input.");
 };
@@ -12,20 +16,22 @@ close F;
 
 open F,">$ARGV[0].csv";
 print F "name\td (m)\tv1\tv2\tangle1 (deg)\tangle2 (deg)\ttrackpoints\n";
-$arcnumber = 0;
-while ($f =~ s/<Placemark>(.*?)<\/Placemark>//s) {
-    $a = $1;
-    $a =~  m/(?:<name\/>|<name>(.*?)\n?<\/name>)/s;
-    #print "$1\n";
-    #$name = $1;
-    #($arch = $name) =~ s/^(\d+)\D.*/$1/gs;
-    $arcnumber = $arcnumber + 1;
-    $a =~ m/<coordinates>(.*?)<\/coordinates>/s;
-    $c = $1;
+
+my $dom = XML::LibXML->load_xml(location => $ARGV[0]);
+my $xpc = XML::LibXML::XPathContext->new($dom);
+$xpc->registerNs('kml',  'http://www.opengis.net/kml/2.2');
+
+foreach my $placemark ($xpc->findnodes('//kml:Placemark')) {
+    # print $placemark;
+    $name = $xpc->findvalue('./kml:name', $placemark) || 'undefined';
+    ($arch = $name) =~ s/^(\d+)\D.*/$1/gs;
+    $coords = $xpc->findnodes('./kml:LineString/kml:coordinates', $placemark);
+    $c = $coords->to_literal();
     $c =~ s/^\s+//sg;
     $c =~ s/\s+$//sg;
     $c =~ s/\s+/ /sg;
     @c = split / /,$c;
+    $arcnumber = $arcnumber + 1;
     $d = &distancesum(@c);
     $angle1 = &bear($c[0],$c[1]);
     $angle2 = &bear($c[$#c],$c[$#c-1]);
