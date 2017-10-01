@@ -1,0 +1,16 @@
+# How to make runningsong network
+
+1. Find the starting point 
+
+Eg. using Google maps, or UMAP:
+
+https://mymaps.google.com/
+https://umap.openstreetmap.fr/
+
+2. Extract a simplified network using OSMnx
+
+./extract.py --lat=59.9370961337817 --lon=10.7203602790833 --name=oslo --distance=750
+
+3. Covert the shapefile to KML for editing in mymaps/UMAP
+
+./covert_shp_to_kml.sh oslo

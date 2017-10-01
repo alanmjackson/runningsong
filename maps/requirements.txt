@@ -1,0 +1,3 @@
+-e git+https://github.com/gboeing/osmnx.git@v0.5.4#egg=osmnx
+
+
